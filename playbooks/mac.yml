@@ -1,0 +1,7 @@
+- name: Install development packages on MacBook
+  hosts: localhost
+  connection: local
+  gather_facts: true
+
+  roles:
+    - packages
