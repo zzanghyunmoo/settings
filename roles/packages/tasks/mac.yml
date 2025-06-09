@@ -34,3 +34,4 @@
     state: present
     path: "{{ ansible_env.HOME }}/.brew/bin/brew"
   loop: "{{ common_packages + mac_packages }}"
+  ignore_errors: true

@@ -1,7 +1,9 @@
 common_packages:
+  - zsh
   - git
   - htop
   - wget
+  - curl
   - vim
   - node
   - nvm
@@ -13,10 +15,13 @@ common_packages:
   - k9s
 
 mac_packages:
-  - visual-studio-code  # Homebrew package name
+  - visual-studio-code  
+  - iterm2
+  - rectangle
+  - alfred
 
 linux_packages:
-  - code                # apt/dnf package name (may require Microsoft repo)
+  - code                
 
 windows_packages:
-  - Microsoft.VisualStudioCode  # winget package name
+  - Microsoft.VisualStudioCode  

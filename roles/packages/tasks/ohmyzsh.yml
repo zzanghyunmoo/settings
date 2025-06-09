@@ -1,0 +1,33 @@
+- name: Install zsh if not present
+  homebrew:
+    name: zsh
+    state: present
+    path: "{{ ansible_env.HOME }}/.brew/bin/brew"
+
+- name: Install oh-my-zsh for current user
+  shell: |
+    export RUNZSH=no
+    export CHSH=no
+    sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+  args:
+    creates: "{{ ansible_env.HOME }}/.oh-my-zsh"
+
+- name: Install powerlevel10k theme
+  git:
+    repo: https://github.com/romkatv/powerlevel10k.git
+    dest: "{{ ansible_env.HOME }}/.oh-my-zsh/custom/themes/powerlevel10k"
+    version: master
+
+- name: Set ZSH_THEME in .zshrc
+  lineinfile:
+    path: "{{ ansible_env.HOME }}/.zshrc"
+    regexp: '^ZSH_THEME='
+    line: 'ZSH_THEME="powerlevel10k/powerlevel10k"'
+    create: yes
+
+- name: Install MesloLGS NF font for powerlevel10k (macOS)
+  homebrew:
+    name: font-meslo-lg-nerd-font
+    state: present
+    tap: homebrew/cask-fonts
+    path: "{{ ansible_env.HOME }}/.brew/bin/brew"
