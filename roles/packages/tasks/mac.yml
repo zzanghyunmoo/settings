@@ -1,0 +1,36 @@
+- name: Check for Homebrew in current user's home (~/.brew/bin/brew)
+  stat:
+    path: "{{ ansible_env.HOME }}/.brew/bin/brew"
+  register: homebrew_check_home
+
+- name: Install Homebrew to ~/.brew if not present
+  shell: |
+    git clone https://github.com/Homebrew/brew.git ~/.brew
+    echo 'export PATH="$HOME/.brew/bin:$PATH"' >> ~/.zprofile
+  args:
+    creates: "{{ ansible_env.HOME }}/.brew/bin/brew"
+  when: not homebrew_check_home.stat.exists
+
+- name: Check if Homebrew works after install
+  shell: "{{ ansible_env.HOME }}/.brew/bin/brew --version"
+  register: brew_version
+  changed_when: false
+  failed_when: brew_version.rc != 0
+  when: not homebrew_check_home.stat.exists
+
+- name: Ensure Xcode Command Line Tools are installed
+  shell: xcode-select --install || true
+  changed_when: false
+
+- name: Run brew update to initialize Homebrew
+  shell: "{{ ansible_env.HOME }}/.brew/bin/brew update"
+  environment:
+    PATH: "{{ ansible_env.HOME }}/.brew/bin:{{ ansible_env.PATH }}"
+  when: homebrew_check_home.stat.exists
+  
+- name: Install packages on macOS (using Homebrew in ~/.brew)
+  homebrew:
+    name: "{{ item }}"
+    state: present
+    path: "{{ ansible_env.HOME }}/.brew/bin/brew"
+  loop: "{{ common_packages + mac_packages }}"

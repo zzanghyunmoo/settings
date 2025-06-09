@@ -4,8 +4,19 @@ common_packages:
   - wget
   - vim
   - node
+  - nvm
   - python3
+  - uv
+  - golang
+  - rust
+  - kubectl
+  - k9s
 
-mac_packages: []        # macOS만 필요한 패키지 (없으면 빈 리스트)
-linux_packages: []      # Linux만 필요한 패키지 (없으면 빈 리스트)
-windows_packages: []    # Windows만 필요한 패키지 (없으면 빈 리스트)
+mac_packages:
+  - visual-studio-code  # Homebrew package name
+
+linux_packages:
+  - code                # apt/dnf package name (may require Microsoft repo)
+
+windows_packages:
+  - Microsoft.VisualStudioCode  # winget package name
