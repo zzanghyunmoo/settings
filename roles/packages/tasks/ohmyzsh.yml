@@ -31,3 +31,14 @@
     state: present
     tap: homebrew/cask-fonts
     path: "{{ ansible_env.HOME }}/.brew/bin/brew"
+
+- name: Tap homebrew/cask-fonts
+  shell: "{{ ansible_env.HOME }}/.brew/bin/brew tap homebrew/cask-fonts"
+  args:
+    creates: "{{ ansible_env.HOME }}/.brew/Library/Taps/homebrew/homebrew-cask-fonts"
+
+- name: Install MesloLGS NF font for powerlevel10k (macOS)
+  homebrew:
+    name: font-meslo-lg-nerd-font
+    state: present
+    path: "{{ ansible_env.HOME }}/.brew/bin/brew"
