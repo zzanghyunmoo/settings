@@ -22,6 +22,3 @@ mac_packages:
 
 linux_packages:
   - code                
-
-windows_packages:
-  - Microsoft.VisualStudioCode  
