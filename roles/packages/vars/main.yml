@@ -5,20 +5,20 @@ common_packages:
   - wget
   - curl
   - vim
-  - node
-  - nvm
-  - python3
-  - uv
-  - golang
-  - rust
+  - tmux
+  - tree
+  - jq
+  - fzf
   - kubectl
-  - k9s
 
 mac_packages:
   - visual-studio-code  
   - iterm2
   - rectangle
   - alfred
+  - k9s
+
 
 linux_packages:
-  - code                
+  - build-essential
+  

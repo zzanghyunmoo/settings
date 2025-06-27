@@ -1,0 +1,12 @@
+- name: Install or upgrade Go on macOS
+  homebrew:
+    name: go
+    state: latest
+  when: ansible_facts['os_family'] == 'Darwin'
+
+- name: Install or upgrade Go on Debian/Ubuntu
+  apt:
+    name: golang
+    state: latest
+    update_cache: yes
+  when: ansible_facts['os_family'] == 'Debian'

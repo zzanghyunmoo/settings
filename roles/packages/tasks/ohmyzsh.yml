@@ -1,10 +1,3 @@
-- name: Install zsh if not present (macOS)
-  homebrew:
-    name: zsh
-    state: present
-    path: "{{ ansible_env.HOME }}/.brew/bin/brew"
-  when: ansible_facts['os_family'] == 'Darwin'
-
 - name: Install oh-my-zsh for current user
   shell: |
     export RUNZSH=no

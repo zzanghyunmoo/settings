@@ -1,0 +1,62 @@
+- name: Install or upgrade Node.js on macOS
+  homebrew:
+    name: node
+    state: latest
+  when: ansible_facts['os_family'] == 'Darwin'
+
+- name: Install or upgrade Node.js on Debian/Ubuntu
+  apt:
+    name: nodejs
+    state: latest
+    update_cache: yes
+  when: ansible_facts['os_family'] == 'Debian'
+  become: yes
+
+- name: Install npm on Debian/Ubuntu
+  apt:
+    name: npm
+    state: latest
+    update_cache: yes
+  when: ansible_facts['os_family'] == 'Debian'
+  become: yes
+
+- name: Get latest nvm version
+  uri:
+    url: https://api.github.com/repos/nvm-sh/nvm/releases/latest
+    return_content: yes
+  register: nvm_release
+
+- name: Set nvm version fact
+  set_fact:
+    nvm_version: "{{ nvm_release.json.tag_name }}"
+
+- name: Debug nvm_release
+  debug:
+    var: nvm_release
+
+- name: Debug nvm_version
+  debug:
+    var: nvm_version
+
+- name: Install nvm (Node Version Manager)
+  shell: |
+    export NVM_DIR="$HOME/.nvm"
+    if [ ! -d "$NVM_DIR" ]; then
+      curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/{{ nvm_version }}/install.sh | bash
+    fi
+  args:
+    executable: /bin/bash
+  environment:
+    HOME: "/home/{{ ansible_user }}"
+  become: no
+
+- name: Ensure nvm init in shell rc file
+  lineinfile:
+    path: "{{ ansible_env.HOME }}/.{{ ansible_env.SHELL | basename }}rc"
+    line: |
+      export NVM_DIR="$HOME/.nvm"
+      [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+      [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+    insertafter: EOF
+    create: yes
+    state: present
