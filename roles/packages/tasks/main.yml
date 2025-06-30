@@ -9,6 +9,7 @@
     update_cache: yes
   loop: "{{ linux_packages + common_packages }}"
   when: ansible_facts['os_family'] == 'Debian'
+  become: yes
 
 - name: Install or upgrade Golang
   include_tasks: languages/golang.yml

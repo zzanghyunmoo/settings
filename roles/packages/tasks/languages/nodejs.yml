@@ -46,13 +46,11 @@
     fi
   args:
     executable: /bin/bash
-  environment:
-    HOME: "/home/{{ ansible_user }}"
   become: no
 
 - name: Ensure nvm init in shell rc file
   lineinfile:
-    path: "{{ ansible_env.HOME }}/.{{ ansible_env.SHELL | basename }}rc"
+    path: "{{ ansible_env.HOME }}/.zshrc"
     line: |
       export NVM_DIR="$HOME/.nvm"
       [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
@@ -60,3 +58,4 @@
     insertafter: EOF
     create: yes
     state: present
+  become: no

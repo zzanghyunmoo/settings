@@ -9,13 +9,13 @@ common_packages:
   - tree
   - jq
   - fzf
-  - kubectl
 
 mac_packages:
   - visual-studio-code  
   - iterm2
   - rectangle
   - alfred
+  - kubectl
   - k9s
 
 
