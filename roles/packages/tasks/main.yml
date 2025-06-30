@@ -19,6 +19,10 @@
   include_tasks: languages/nodejs.yml
   when: ansible_facts['os_family'] == 'Darwin' or ansible_facts['os_family'] == 'Debian'
 
+- name: Install or upgrade Python
+  include_tasks: languages/python.yml
+  when: ansible_facts['os_family'] == 'Darwin' or ansible_facts['os_family'] == 'Debian'
+
 
 # - name: Setup nvm environment on macOS
 #   include_tasks: nvm.yml

@@ -1,0 +1,75 @@
+- name: Install Python on macOS
+  homebrew:
+    name: python
+    state: latest
+  when: ansible_facts['os_family'] == 'Darwin'
+
+- name: Install Python build dependencies on Debian/Ubuntu
+  apt:
+    name:
+      - python3
+      - python3-pip
+      - python3-venv
+      - libssl-dev
+      - libffi-dev
+    state: present
+    update_cache: yes
+  when: ansible_facts['os_family'] == 'Debian'
+  become: yes
+
+- name: Get latest uv release info
+  uri:
+    url: https://api.github.com/repos/astral-sh/uv/releases/latest
+    return_content: yes
+  register: uv_release
+
+- name: Set uv version fact
+  set_fact:
+    uv_version: "{{ uv_release.json.tag_name }}"
+
+- name: Set uv asset url fact (Linux x86_64)
+  set_fact:
+    uv_asset_url: "{{ uv_release.json.assets | selectattr('name', 'search', 'x86_64-unknown-linux-gnu.tar.gz') | map(attribute='browser_download_url') | first }}"
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Set uv asset url fact macOS
+  set_fact:
+    uv_asset_url: "{{ uv_release.json.assets | selectattr('name', 'search', 'aarch64-apple-darwin.tar.gz') | map(attribute='browser_download_url') | first }}"
+  when: ansible_facts['os_family'] == 'Darwin'
+
+- name: Download uv archive
+  get_url:
+    url: "{{ uv_asset_url }}"
+    dest: "/tmp/uv.tar.gz"
+    mode: '0644'
+
+- name: Extract uv binary
+  unarchive:
+    src: "/tmp/uv.tar.gz"
+    dest: "/tmp/uv"
+    remote_src: yes
+
+- name: Move uv binary to ~/.local/bin
+  shell: |
+    mkdir -p $HOME/.local/bin
+    cp /tmp/uv/uv $HOME/.local/bin/uv
+    chmod +x $HOME/.local/bin/uv
+  args:
+    executable: /bin/bash
+
+- name: Ensure ~/.local/bin is in PATH in .zshrc
+  lineinfile:
+    path: "{{ ansible_env.HOME }}/.zshrc"
+    line: 'export PATH="$HOME/.local/bin:$PATH"'
+    insertafter: EOF
+    create: yes
+    state: present
+
+- name: Check uv version
+  shell: "$HOME/.local/bin/uv --version"
+  register: uv_version_output
+  changed_when: false
+
+- name: Show uv version
+  debug:
+    var: uv_version_output.stdout
