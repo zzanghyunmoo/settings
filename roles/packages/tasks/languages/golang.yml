@@ -1,6 +1,6 @@
 - name: Install or upgrade Go on macOS
   homebrew:
-    name: go
+    name: golang
     state: latest
   when: ansible_facts['os_family'] == 'Darwin'
 

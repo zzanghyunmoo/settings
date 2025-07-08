@@ -4,6 +4,12 @@
     state: latest
   when: ansible_facts['os_family'] == 'Darwin'
 
+- name: Install or upgrade nvm on macOS
+  homebrew:
+    name: nvm
+    state: latest
+  when: ansible_facts['os_family'] == 'Darwin'
+
 - name: Install or upgrade Node.js on Debian/Ubuntu
   apt:
     name: nodejs
@@ -25,18 +31,22 @@
     url: https://api.github.com/repos/nvm-sh/nvm/releases/latest
     return_content: yes
   register: nvm_release
+  when: ansible_facts['os_family'] == 'Debian'
 
 - name: Set nvm version fact
   set_fact:
     nvm_version: "{{ nvm_release.json.tag_name }}"
+  when: ansible_facts['os_family'] == 'Debian'
 
 - name: Debug nvm_release
   debug:
     var: nvm_release
+  when: ansible_facts['os_family'] == 'Debian'
 
 - name: Debug nvm_version
   debug:
     var: nvm_version
+  when: ansible_facts['os_family'] == 'Debian'
 
 - name: Install nvm (Node Version Manager)
   shell: |
@@ -47,6 +57,7 @@
   args:
     executable: /bin/bash
   become: no
+  when: ansible_facts['os_family'] == 'Debian'
 
 - name: Ensure nvm init in shell rc file
   lineinfile:

@@ -7,7 +7,7 @@
 
 2. Run the following command to install packages on your Mac:
    ```sh
-   ansible-playbook -i inventories/local/hosts playbooks/mac.yml
+   ansible-playbook -i inventories/local/hosts playbooks/mac.yml --ask-become-pass
    ```
 
 This will automatically install Homebrew (if not present) and then install all packages defined for macOS.

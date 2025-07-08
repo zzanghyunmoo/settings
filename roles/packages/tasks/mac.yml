@@ -22,6 +22,11 @@
   shell: xcode-select --install || true
   changed_when: false
 
+- name: Ensure user owns /opt/homebrew
+  become: yes
+  command: chown -R {{ ansible_env.USER }} /opt/homebrew
+  when: ansible_facts['os_family'] == 'Darwin'
+
 - name: Run brew update to initialize Homebrew
   shell: "{{ ansible_env.HOME }}/.brew/bin/brew update"
   environment:

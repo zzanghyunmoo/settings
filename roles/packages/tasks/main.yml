@@ -14,20 +14,24 @@
 - name: Install or upgrade Golang
   include_tasks: languages/golang.yml
   when: ansible_facts['os_family'] == 'Darwin' or ansible_facts['os_family'] == 'Debian'
+  ignore_errors: true
 
 - name: Install or upgrade Node.js
   include_tasks: languages/nodejs.yml
   when: ansible_facts['os_family'] == 'Darwin' or ansible_facts['os_family'] == 'Debian'
+  ignore_errors: true
 
 - name: Install or upgrade Python
   include_tasks: languages/python.yml
   when: ansible_facts['os_family'] == 'Darwin' or ansible_facts['os_family'] == 'Debian'
+  ignore_errors: true
 
+- name: Install or upgrade Rust
+  include_tasks: languages/rust.yml
+  when: ansible_facts['os_family'] == 'Darwin' or ansible_facts['os_family'] == 'Debian'
+  ignore_errors: true
 
-# - name: Setup nvm environment on macOS
-#   include_tasks: nvm.yml
-#   when: ansible_facts['os_family'] == 'Darwin'
-
-# - name: Setup oh-my-zsh, powerlevel10k, and fonts on macOS
-#   include_tasks: ohmyzsh.yml
-#   when: ansible_facts['os_family'] == 'Darwin'
+- name: Setup oh-my-zsh, powerlevel10k, and fonts on macOS
+  include_tasks: ohmyzsh.yml
+  when: ansible_facts['os_family'] == 'Darwin' or ansible_facts['os_family'] == 'Debian'
+  ignore_errors: true
