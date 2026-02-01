@@ -47,6 +47,13 @@
     mode: '0644'
   when: ansible_facts['os_family'] == 'Debian'
 
+- name: Create temp directory for uv extraction
+  file:
+    path: "/tmp/uv"
+    state: directory
+    mode: '0755'
+  when: ansible_facts['os_family'] == 'Debian'
+
 - name: Extract uv binary
   unarchive:
     src: "/tmp/uv.tar.gz"
@@ -57,7 +64,7 @@
 - name: Move uv binary to ~/.local/bin
   shell: |
     mkdir -p $HOME/.local/bin
-    cp /tmp/uv/uv $HOME/.local/bin/uv
+    cp /tmp/uv/uv-x86_64-unknown-linux-gnu/uv $HOME/.local/bin/uv
     chmod +x $HOME/.local/bin/uv
   args:
     executable: /bin/bash
