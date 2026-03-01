@@ -1,0 +1,59 @@
+---
+# Neovim and NvChad Installation
+
+- name: Install Neovim on macOS
+  homebrew:
+    name: neovim
+    state: latest
+  when: ansible_facts['os_family'] == 'Darwin'
+
+- name: Add Neovim unstable PPA repository on Debian/Ubuntu
+  apt_repository:
+    repo: ppa:neovim-ppa/unstable
+    state: present
+  become: yes
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Install Neovim on Debian/Ubuntu
+  apt:
+    name: neovim
+    state: latest
+    update_cache: yes
+  become: yes
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Ensure nvim config directory exists
+  file:
+    path: "{{ ansible_env.HOME }}/.config/nvim"
+    state: directory
+    mode: '0755'
+
+- name: Check if NvChad is already installed
+  stat:
+    path: "{{ ansible_env.HOME }}/.config/nvim/init.lua"
+  register: nvchad_check
+
+- name: Backup existing nvim config if present
+  shell: |
+    if [ -d "{{ ansible_env.HOME }}/.config/nvim" ]; then
+      mv {{ ansible_env.HOME }}/.config/nvim {{ ansible_env.HOME }}/.config/nvim.backup.{{ ansible_date_time.epoch }}
+    fi
+  when: nvchad_check.stat.exists and nvchad_check.stat.isdir
+  ignore_errors: true
+
+- name: Clone NvChad starter template
+  git:
+    repo: https://github.com/NvChad/starter
+    dest: "{{ ansible_env.HOME }}/.config/nvim"
+    version: main
+    force: yes
+  when: not nvchad_check.stat.exists
+
+- name: Install lazy.nvim and plugins (first run)
+  shell: |
+    nvim --headless "+Lazy! sync" +qa
+  environment:
+    PATH: "{{ ansible_env.HOME }}/.local/bin:{{ ansible_env.PATH }}"
+  register: lazy_sync
+  changed_when: false
+  failed_when: false

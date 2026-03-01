@@ -31,6 +31,21 @@
   when: ansible_facts['os_family'] == 'Darwin' or ansible_facts['os_family'] == 'Debian'
   ignore_errors: true
 
+- name: Install or upgrade C/C++ toolchain
+  include_tasks: languages/c_cpp.yml
+  when: ansible_facts['os_family'] == 'Darwin' or ansible_facts['os_family'] == 'Debian'
+  ignore_errors: true
+
+- name: Setup Neovim and NvChad
+  include_tasks: neovim.yml
+  when: ansible_facts['os_family'] == 'Darwin' or ansible_facts['os_family'] == 'Debian'
+  ignore_errors: true
+
+- name: Deploy NvChad configuration
+  include_tasks: neovim_config.yml
+  when: ansible_facts['os_family'] == 'Darwin' or ansible_facts['os_family'] == 'Debian'
+  ignore_errors: true
+
 - name: Setup oh-my-zsh, powerlevel10k, and fonts on macOS
   include_tasks: ohmyzsh.yml
   when: ansible_facts['os_family'] == 'Darwin' or ansible_facts['os_family'] == 'Debian'

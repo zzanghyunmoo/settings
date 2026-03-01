@@ -1,0 +1,77 @@
+---
+# NvChad Configuration Deployment
+
+- name: Ensure NvChad custom config directory exists
+  file:
+    path: "{{ ansible_env.HOME }}/.config/nvim/lua/custom"
+    state: directory
+    mode: '0755'
+
+- name: Ensure NvChad custom plugins directory exists
+  file:
+    path: "{{ ansible_env.HOME }}/.config/nvim/lua/custom/plugins"
+    state: directory
+    mode: '0755'
+
+- name: Deploy NvChad custom chadrc.lua
+  template:
+    src: nvim_chadrc.lua.j2
+    dest: "{{ ansible_env.HOME }}/.config/nvim/lua/custom/chadrc.lua"
+    mode: '0644'
+
+- name: Deploy NvChad custom mappings.lua
+  template:
+    src: nvim_mappings.lua.j2
+    dest: "{{ ansible_env.HOME }}/.config/nvim/lua/custom/mappings.lua"
+    mode: '0644'
+
+- name: Deploy NvChad custom plugins.lua
+  template:
+    src: nvim_plugins.lua.j2
+    dest: "{{ ansible_env.HOME }}/.config/nvim/lua/custom/plugins/init.lua"
+    mode: '0644'
+
+- name: Install/update Neovim plugins
+  shell: |
+    nvim --headless "+Lazy! sync" +qa
+  environment:
+    PATH: "{{ ansible_env.HOME }}/.local/bin:{{ ansible_env.PATH }}"
+  register: plugin_install
+  changed_when: false
+  failed_when: false
+
+- name: Ensure Mason LSP servers are installed
+  shell: |
+    nvim --headless "+MasonInstall clangd rust-analyzer gopls pyright" +qa
+  environment:
+    PATH: "{{ ansible_env.HOME }}/.local/bin:{{ ansible_env.PATH }}"
+  register: mason_install
+  changed_when: false
+  failed_when: false
+
+- name: Ensure Mason formatters are installed
+  shell: |
+    nvim --headless "+MasonInstall stylua black isort prettierd prettier goimports rustfmt clang-format" +qa
+  environment:
+    PATH: "{{ ansible_env.HOME }}/.local/bin:{{ ansible_env.PATH }}"
+  register: mason_formatters_install
+  changed_when: false
+  failed_when: false
+
+- name: Ensure Mason linters are installed
+  shell: |
+    nvim --headless "+MasonInstall pylint flake8 eslint golangci-lint" +qa
+  environment:
+    PATH: "{{ ansible_env.HOME }}/.local/bin:{{ ansible_env.PATH }}"
+  register: mason_linters_install
+  changed_when: false
+  failed_when: false
+
+- name: Ensure Mason debug adapters are installed
+  shell: |
+    nvim --headless "+MasonInstall debugpy" +qa
+  environment:
+    PATH: "{{ ansible_env.HOME }}/.local/bin:{{ ansible_env.PATH }}"
+  register: mason_dap_install
+  changed_when: false
+  failed_when: false

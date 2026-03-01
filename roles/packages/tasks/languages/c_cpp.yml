@@ -1,0 +1,74 @@
+---
+# C/C++ Language Support Installation
+
+- name: Install C/C++ toolchain on macOS
+  homebrew:
+    name: "{{ item }}"
+    state: latest
+  loop:
+    - llvm
+    - clang-format
+    - clang-tidy
+    - gdb
+    - lldb
+  when: ansible_facts['os_family'] == 'Darwin'
+
+- name: Install xmake on macOS
+  homebrew:
+    name: xmake
+    state: latest
+  when: ansible_facts['os_family'] == 'Darwin'
+
+- name: Install C/C++ toolchain on Debian/Ubuntu
+  apt:
+    name: "{{ item }}"
+    state: latest
+    update_cache: yes
+  become: yes
+  loop:
+    - build-essential
+    - gcc
+    - g++
+    - clang
+    - clangd
+    - clang-format
+    - clang-tidy
+    - gdb
+    - lldb
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Add xmake PPA repository
+  apt_repository:
+    repo: ppa:xmake-io/xmake
+    state: present
+    update_cache: yes
+  become: yes
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Install xmake on Debian/Ubuntu
+  apt:
+    name: xmake
+    state: latest
+    update_cache: yes
+  become: yes
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Ensure xmake is in PATH for Linux
+  lineinfile:
+    path: "{{ ansible_env.HOME }}/.zshrc"
+    line: 'export PATH="$HOME/.local/bin:$PATH"'
+    insertafter: EOF
+    create: yes
+    state: present
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Verify xmake installation
+  shell: |
+    if [ -f "{{ ansible_env.HOME }}/.local/bin/xmake" ]; then
+      {{ ansible_env.HOME }}/.local/bin/xmake --version
+    elif command -v xmake >/dev/null 2>&1; then
+      xmake --version
+    fi
+  register: xmake_version_output
+  changed_when: false
+  failed_when: false

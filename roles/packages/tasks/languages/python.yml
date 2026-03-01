@@ -89,3 +89,31 @@
   debug:
     var: uv_version_output.stdout
   when: ansible_facts['os_family'] == 'Debian'
+
+- name: Install Python development tools via uv
+  shell: |
+    if [ -f "{{ ansible_env.HOME }}/.local/bin/uv" ]; then
+      {{ ansible_env.HOME }}/.local/bin/uv tool install black
+      {{ ansible_env.HOME }}/.local/bin/uv tool install ruff
+    elif command -v uv >/dev/null 2>&1; then
+      uv tool install black
+      uv tool install ruff
+    fi
+  environment:
+    PATH: "{{ ansible_env.HOME }}/.local/bin:{{ ansible_env.PATH }}"
+  register: python_tools_install
+  changed_when: false
+  failed_when: false
+
+- name: Install additional Python development tools via pip
+  shell: |
+    if [ -f "{{ ansible_env.HOME }}/.local/bin/uv" ]; then
+      {{ ansible_env.HOME }}/.local/bin/uv pip install pylint flake8 isort debugpy mypy
+    elif command -v pip3 >/dev/null 2>&1; then
+      pip3 install --user pylint flake8 isort debugpy mypy
+    fi
+  environment:
+    PATH: "{{ ansible_env.HOME }}/.local/bin:{{ ansible_env.PATH }}"
+  register: python_pip_tools_install
+  changed_when: false
+  failed_when: false

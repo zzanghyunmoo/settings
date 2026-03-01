@@ -9,6 +9,7 @@ common_packages:
   - tree
   - jq
   - fzf
+  - neovim
 
 mac_packages:
   - visual-studio-code  

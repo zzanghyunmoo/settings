@@ -1,5 +1,64 @@
-- name: Install or upgrade Go on macOS
+---
+# Rust Language Support Installation
+
+- name: Install Rust on macOS
   homebrew:
     name: rust
     state: latest
   when: ansible_facts['os_family'] == 'Darwin'
+
+- name: Install rustup on Debian/Ubuntu
+  shell: |
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+  args:
+    creates: "{{ ansible_env.HOME }}/.cargo/bin/rustc"
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Ensure cargo environment is loaded in .zshrc
+  lineinfile:
+    path: "{{ ansible_env.HOME }}/.zshrc"
+    line: |
+      # Rust cargo environment
+      . "$HOME/.cargo/env"
+    insertafter: EOF
+    create: yes
+    state: present
+  when: ansible_facts['os_family'] == 'Debian'
+
+- name: Install rust-analyzer via rustup
+  shell: |
+    source {{ ansible_env.HOME }}/.cargo/env
+    rustup component add rust-analyzer
+  register: rust_analyzer
+  changed_when: "'is installed' in rust_analyzer.stdout or 'added' in rust_analyzer.stdout or true"
+  failed_when: false
+
+- name: Install rustfmt via rustup
+  shell: |
+    source {{ ansible_env.HOME }}/.cargo/env
+    rustup component add rustfmt
+  register: rustfmt
+  changed_when: "'is installed' in rustfmt.stdout or 'added' in rustfmt.stdout or true"
+  failed_when: false
+
+- name: Install clippy via rustup
+  shell: |
+    source {{ ansible_env.HOME }}/.cargo/env
+    rustup component add clippy
+  register: clippy
+  changed_when: "'is installed' in clippy.stdout or 'added' in clippy.stdout or true"
+  failed_when: false
+
+- name: Install lldb for Rust debugging on macOS
+  homebrew:
+    name: lldb
+    state: latest
+  when: ansible_facts['os_family'] == 'Darwin'
+
+- name: Ensure lldb is installed on Debian/Ubuntu
+  apt:
+    name: lldb
+    state: latest
+    update_cache: yes
+  become: yes
+  when: ansible_facts['os_family'] == 'Debian'
