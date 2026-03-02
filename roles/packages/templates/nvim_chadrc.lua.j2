@@ -11,4 +11,10 @@ M.plugins = "custom.plugins"
 -- Don't override default mappings, use NvChad defaults
 -- M.mappings = require "custom.mappings"
 
+-- Enable LSP semantic highlighting for variable/type tagging
+-- This ensures variables, functions, types are properly highlighted
+M.ui.semantic_tokens = {
+  enable = true,
+}
+
 return M

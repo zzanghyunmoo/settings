@@ -1,101 +1,33 @@
 local plugins = {
-  -- LSP Configuration
+  -- Mason: LSP server installer (NvChad uses its own lspconfig)
   {
-    "neovim/nvim-lspconfig",
-    dependencies = {
-      "williamboman/mason.nvim",
-      "williamboman/mason-lspconfig.nvim",
+    "williamboman/mason.nvim",
+    opts = {
+      ensure_installed = {
+        -- LSP servers
+        "clangd",
+        "rust-analyzer",
+        "gopls",
+        "pyright",
+        "lua-language-server",
+        -- DAP adapters
+        "debugpy",
+        -- Formatters
+        "stylua",
+        "black",
+        "isort",
+        "rustfmt",
+        "clang-format",
+        "prettier",
+        "prettierd",
+        -- Linters
+        "pylint",
+        "flake8",
+        "eslint",
+        "golangci-lint",
+        "clippy",
+      },
     },
-    init = function()
-      -- Add gopls to PATH
-      vim.env.PATH = vim.env.HOME .. "/go/bin:" .. vim.env.PATH
-    end,
-    config = function()
-      require("mason").setup()
-      require("mason-lspconfig").setup {
-        ensure_installed = {
-          "clangd",
-          "rust_analyzer",
-          "gopls",
-          "pyright",
-          "lua_ls",
-        },
-        automatic_installation = true,
-      }
-
-      local lspconfig = require "lspconfig"
-
-      -- Common capabilities
-      local capabilities = vim.lsp.protocol.make_client_capabilities()
-      -- Handle nvim-cmp if available
-      pcall(function()
-        capabilities = require("cmp_nvim_lsp").default_capabilities(capabilities)
-      end)
-
-      -- C/C++
-      lspconfig.clangd.setup {
-        capabilities = capabilities,
-        cmd = {
-          "clangd",
-          "--offset-encoding=utf-16",
-        },
-      }
-
-      -- Rust
-      lspconfig.rust_analyzer.setup {
-        capabilities = capabilities,
-        settings = {
-          ["rust-analyzer"] = {
-            checkOnSave = {
-              command = "clippy",
-            },
-          },
-        },
-      }
-
-      -- Go
-      lspconfig.gopls.setup {
-        capabilities = capabilities,
-      }
-
-      -- Python
-      lspconfig.pyright.setup {
-        capabilities = capabilities,
-      }
-
-      -- Lua
-      lspconfig.lua_ls.setup {
-        capabilities = capabilities,
-        settings = {
-          Lua = {
-            diagnostics = {
-              globals = { "vim" },
-            },
-          },
-        },
-      }
-
-      -- LSP keybindings
-      vim.api.nvim_create_autocmd("LspAttach", {
-        group = vim.api.nvim_create_augroup("lsp-attach-keybindings", { clear = true }),
-        callback = function(event)
-          local map = function(keys, func, desc)
-            vim.keymap.set("n", keys, func, { buffer = event.buf, desc = "LSP: " .. desc })
-          end
-
-          map("gd", vim.lsp.buf.definition, "[G]oto [D]efinition")
-          map("gr", vim.lsp.buf.references, "[G]oto [R]eferences")
-          map("gI", vim.lsp.buf.implementation, "[G]oto [I]mplementation")
-          map("<leader>D", vim.lsp.buf.type_definition, "Type [D]efinition")
-          map("<leader>ca", vim.lsp.buf.code_action, "[C]ode [A]ction")
-          map("K", vim.lsp.buf.hover, "Hover Documentation")
-          map("gK", vim.lsp.buf.signature_help, "Signature Help")
-          map("gD", vim.lsp.buf.declaration, "[G]oto [D]eclaration")
-          map("<leader>rn", vim.lsp.buf.rename, "[R]e[n]ame")
-          map("<leader>fm", vim.lsp.buf.format, "[F]or[m]at")
-        end,
-      })
-    end,
   },
 
   -- Formatting
@@ -123,10 +55,34 @@ local plugins = {
         python = { "black", "isort" },
         javascript = { "prettierd", "prettier" },
         typescript = { "prettierd", "prettier" },
-        go = { "goimports", "gofmt" },
+        go = { "gofmt" },
         rust = { "rustfmt" },
         c = { "clang_format" },
         cpp = { "clang_format" },
+      },
+      -- Use system formatters when Mason ones aren't available
+      formatters = {
+        clang_format = {
+          command = "clang-format",
+          args = { "-assume-filename", "$FILENAME" },
+        },
+        black = {
+          command = "black",
+          args = { "-" },
+        },
+        isort = {
+          command = "isort",
+          args = { "-" },
+        },
+        gofmt = {
+          command = "gofmt",
+        },
+        rustfmt = {
+          command = "rustfmt",
+        },
+        stylua = {
+          command = "stylua",
+        },
       },
     },
   },
@@ -178,10 +134,53 @@ local plugins = {
     ft = { "go", "gomod" },
   },
 
-  -- Python Support
+  -- Treesitter for syntax highlighting
   {
     "nvim-treesitter/nvim-treesitter",
-    run = ":TSUpdate",
+    build = ":TSUpdate",
+    event = { "BufReadPost", "BufNewFile" },
+    dependencies = {
+      "nvim-treesitter/nvim-treesitter-textobjects",
+    },
+    config = function()
+      require("nvim-treesitter.configs").setup {
+        ensure_installed = {
+          "c",
+          "cpp",
+          "rust",
+          "go",
+          "python",
+          "lua",
+          "vim",
+          "vimdoc",
+          "bash",
+          "json",
+          "yaml",
+          "markdown",
+          "markdown_inline",
+        },
+        sync_install = false,
+        auto_install = true,
+        highlight = {
+          enable = true,
+        },
+        indent = {
+          enable = true,
+        },
+        textobjects = {
+          select = {
+            enable = true,
+            lookahead = true,
+            keymaps = {
+              ["af"] = "@function.outer",
+              ["if"] = "@function.inner",
+              ["ac"] = "@class.outer",
+              ["ic"] = "@class.inner",
+            },
+          },
+        },
+      }
+    end,
   },
 
   -- Debugging

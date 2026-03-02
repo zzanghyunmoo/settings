@@ -13,6 +13,12 @@
     state: directory
     mode: '0755'
 
+- name: Ensure NvChad configs directory exists
+  file:
+    path: "{{ ansible_env.HOME }}/.config/nvim/lua/configs"
+    state: directory
+    mode: '0755'
+
 - name: Deploy NvChad custom chadrc.lua
   template:
     src: nvim_chadrc.lua.j2
@@ -29,6 +35,12 @@
   template:
     src: nvim_plugins.lua.j2
     dest: "{{ ansible_env.HOME }}/.config/nvim/lua/custom/plugins/init.lua"
+    mode: '0644'
+
+- name: Deploy NvChad lspconfig.lua
+  template:
+    src: nvim_lspconfig.lua.j2
+    dest: "{{ ansible_env.HOME }}/.config/nvim/lua/configs/lspconfig.lua"
     mode: '0644'
 
 - name: Install/update Neovim plugins
@@ -51,7 +63,7 @@
 
 - name: Ensure Mason formatters are installed
   shell: |
-    nvim --headless "+MasonInstall stylua black isort prettierd prettier goimports rustfmt clang-format" +qa
+    nvim --headless "+MasonInstall stylua black isort prettierd prettier rustfmt clang-format" +qa
   environment:
     PATH: "{{ ansible_env.HOME }}/.local/bin:{{ ansible_env.PATH }}"
   register: mason_formatters_install
@@ -73,5 +85,14 @@
   environment:
     PATH: "{{ ansible_env.HOME }}/.local/bin:{{ ansible_env.PATH }}"
   register: mason_dap_install
+  changed_when: false
+  failed_when: false
+
+- name: Ensure Treesitter parsers are installed
+  shell: |
+    nvim --headless "+TSInstall c cpp rust go python lua vim vimdoc bash json yaml markdown markdown_inline" +qa
+  environment:
+    PATH: "{{ ansible_env.HOME }}/.local/bin:{{ ansible_env.PATH }}"
+  register: treesitter_install
   changed_when: false
   failed_when: false

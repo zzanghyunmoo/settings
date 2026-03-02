@@ -1,0 +1,52 @@
+require("nvchad.configs.lspconfig").defaults()
+
+-- Default servers
+local servers = { "html", "cssls" }
+vim.lsp.enable(servers)
+
+-- Custom LSP configurations with semantic highlighting enabled
+-- Don't use NvChad's default on_init which disables semanticTokens
+
+vim.lsp.config("clangd", {
+  cmd = { "clangd", "--offset-encoding=utf-16" },
+})
+
+vim.lsp.config("rust_analyzer", {
+  settings = {
+    ["rust-analyzer"] = {
+      checkOnSave = {
+        command = "clippy",
+      },
+    },
+  },
+})
+
+vim.lsp.config("gopls", {
+  settings = {
+    gopls = {
+      semanticTokens = true,
+      analyses = {
+        unusedparams = true,
+        shadow = true,
+      },
+      staticcheck = true,
+    },
+  },
+})
+
+vim.lsp.config("pyright", {
+  settings = {
+    python = {
+      analysis = {
+        typeCheckingMode = "basic",
+        autoSearchPaths = true,
+        useLibraryCodeForTypes = true,
+      },
+    },
+  },
+})
+
+-- Enable our LSP servers
+vim.lsp.enable { "clangd", "rust_analyzer", "gopls", "pyright" }
+
+-- read :h vim.lsp.config for changing options of lsp servers
